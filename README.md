@@ -1,11 +1,18 @@
 # os-learning
 <img width="716" height="457" alt="Screenshot_from_2026-02-14_02-32-06" src="https://github.com/user-attachments/assets/c95f077c-3076-4791-9bfb-c6740a8c93a4" />
+
+  <sub> Screenshot of my bootloader reaching Protected Mode </sub>
+
+
 <p> Exploring low level system programming on 32 bit x86 to better understand how computers handle booting, memory, and hardware interaction. </p>
+
+
 
 ## Build & Run
 <p>In order to compile this you will need to set up the cross compiler toolchain that OSDev wiki recommends</p>
 
 - https://wiki.osdev.org/GCC_Cross-Compiler
+
 
 <p>Once the cross compiler you can compile with</p>
 
