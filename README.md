@@ -12,5 +12,6 @@
   <li>https://users.cs.utah.edu/~aburtsev/238P/2020spring/</li>
   <li>https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html</li>
   <li>https://wiki.osdev.org/Expanded_Main_Page</li>
-  
+  <li>https://github.com/mit-pdos/xv6-public/</li>
+  <li>https://pdos.csail.mit.edu/6.828/2018/xv6/book-rev11.pdf</li>
 </ul>
