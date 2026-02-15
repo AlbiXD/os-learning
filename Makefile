@@ -3,22 +3,31 @@ LFLAGS := -m elf_i386 --oformat binary
 CC := i686-elf-gcc
 LD := i686-elf-ld
 
-all: boot.bin main.bin
+BOOTDIR := boot
+BUILDDIR := build
 
-main.bin: main.o
-	$(LD) $(LFLAGS) -Ttext 0x1000 -e bootmain -o main.bin main.o
+all: $(BUILDDIR) boot.bin main.bin
 
-main.o: main.c
-	$(CC) $(CFLAGS) -c main.c -o main.o
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
 
-boot.bin: boot.o
-	$(LD) $(LFLAGS) -Ttext 0x7c00 -o boot.bin boot.o
+main.bin: $(BUILDDIR)/bootmain.o
+	$(LD) $(LFLAGS) -Ttext 0x1000 -e bootmain -o $(BUILDDIR)/$@ $^
 
-boot.o: boot.S
-	$(CC) $(CFLAGS) -c boot.S -o boot.o
+$(BUILDDIR)/bootmain.o: $(BOOTDIR)/bootmain.c | $(BUILDDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+boot.bin: $(BUILDDIR)/boot.o
+	$(LD) $(LFLAGS) -Ttext 0x7c00 -o $(BUILDDIR)/$@ $<
+
+$(BUILDDIR)/boot.o: $(BOOTDIR)/boot.S | $(BUILDDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	rm -f boot.o boot.bin main.o main.bin
-output:
-	dd if=boot.bin of=boot.img bs=512 count=1 conv=notrunc
-	dd if=main.bin of=boot.img bs=512 seek=1 conv=notrunc
-	qemu-system-i386  -drive format=raw,file=boot.img
+	rm -rf $(BUILDDIR) boot.bin main.bin boot.img
+
+output: all
+	rm -f boot.img
+	dd if=$(BUILDDIR)/boot.bin of=boot.img bs=512 count=1 conv=notrunc
+	dd if=$(BUILDDIR)/main.bin of=boot.img bs=512 seek=1 conv=notrunc
+	qemu-system-i386 -drive format=raw,file=boot.img
