@@ -20,11 +20,12 @@ void bootmain(void)
 
     // Read from HDD Data Register into memory address 0x5E8
     uint16_t *p = kernel_header;
-    if (ata_wait_drq() < 0)
-        while (1)
-            ;
-    for (int i = 0; i < 2048; i++)
-        *p++ = inw(ATA_DATA);
+
+    for (int i = 0; i < 4; i++){
+        if (ata_wait_drq() < 0) while (1);
+        for(int s = 0; s < 256; s++)
+            *p++ = inw(ATA_DATA);
+    }
 
     // Parse the kernel files
     struct elfhdr *elf = (struct elfhdr *)kernel_header;
