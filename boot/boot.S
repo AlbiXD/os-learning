@@ -28,6 +28,7 @@ _start:
     movb $0x00, %dh
     movw $0x1000, %bx
     int $0x13
+    
     jnc read_ok
     movb $0x0e, %ah
     movb $'E', %al
