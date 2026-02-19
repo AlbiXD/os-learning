@@ -1,7 +1,7 @@
 # os-learning
-<img width="716" height="457" alt="Screenshot_from_2026-02-14_02-32-06" src="https://github.com/user-attachments/assets/c95f077c-3076-4791-9bfb-c6740a8c93a4" />
+<img width="748" height="492" alt="Screenshot from 2026-02-18 23-49-01" src="https://github.com/user-attachments/assets/5293bfc1-bdd5-4c71-9d05-dd78adc9d65f" />
 
-  <sub> Screenshot of my bootloader reaching Protected Mode </sub>
+  <sub> Screenshot of just a few characters from the kernel </sub>
 
 
 <p> Exploring low level system programming on 32 bit x86 to better understand how computers handle booting, memory, and hardware interaction. </p>
