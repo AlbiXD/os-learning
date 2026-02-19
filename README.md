@@ -6,7 +6,7 @@
 
 <p> Exploring low level system programming on 32 bit x86 to better understand how computers handle booting, memory, and hardware interaction. </p>
 
-
+<p>At the moment I have parsed the kernel's elf files and loaded them into memory, my next phase will be to clean up and map the memory of the OS and make it less sloppy</p>
 
 ## Build & Run
 <p>In order to compile this you will need to set up the cross compiler toolchain that OSDev wiki recommends</p>
@@ -14,18 +14,13 @@
 - https://wiki.osdev.org/GCC_Cross-Compiler
 
 
-<p>Once the cross compiler you can compile with</p>
-
-```
-make
-```
-
 <p> In order to actually load it and simulate the OS you will need qemu, on Debian/Ubuntu linux you can just run </p>
 
 ```
 sudo apt install qemu-system
-``` 
-<p> Then finally run the simulator with </p>
+```
+
+<p> Then finally run and compile the simulator with </p>
 
 ```
 make output
