@@ -42,5 +42,5 @@ output: all
 	rm -f boot.img
 	dd if=$(BUILDDIR)/boot.bin of=boot.img bs=512 count=1 conv=notrunc
 	dd if=$(BUILDDIR)/main.bin of=boot.img bs=512 seek=1 conv=notrunc
-	dd if=$(BUILDDIR)/kernel.out of=boot.img bs=512 seek=2 conv=notrunc
+	dd if=$(BUILDDIR)/kernel.out of=boot.img bs=512 seek=3 conv=notrunc
 	qemu-system-i386 -drive format=raw,file=boot.img

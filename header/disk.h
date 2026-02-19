@@ -43,20 +43,37 @@ static inline uint8_t ata_read_status(){
     return inb(0x1F7);
 }
 
-static inline int ata_wait_drq(void) {
+static inline void ata_wait_drq(void) {
     uint8_t status;
-    do {
-        status = ata_read_status();
-        if (status & ERR) return -1;    
-    } while (status & BSY || !(status & DRQ));
-    return 0; 
-}
 
-static inline void  ata_issue_read28(uint8_t count, uint32_t lba){
-    outb(ATA_PRIMARY_DRIVE_HEAD, 0xE0 | ((lba >> 24) & 0x0F));
-    outb(ATA_SECTOR_COUNT, count);
+    for (;;) {
+        status = ata_read_status();
+
+        if (status & ERR) {
+            while (1);  // hard hang on error
+        }
+
+        if (!(status & BSY) && (status & DRQ)) {
+            break;  // ready
+        }
+    }
+}
+static inline void
+waitdisk(void)
+{
+  // Wait for disk ready.
+  while((inb(0x1F7) & 0xC0) != 0x40)
+    ;
+}
+static inline void ata_issue_read28(uint16_t count, uint32_t lba)
+{
+    uint8_t c = (count == 256) ? 0 : (uint8_t)count;
+
+    outb(ATA_SECTOR_COUNT, c);
     outb(ATA_LBA_LOW,  (uint8_t)(lba));
     outb(ATA_LBA_MID,  (uint8_t)(lba >>  8));
     outb(ATA_LBA_HIGH, (uint8_t)(lba >> 16));
+    outb(ATA_PRIMARY_DRIVE_HEAD, 0xE0 | ((lba >> 24) & 0x0F));
     outb(ATA_COMMAND_STATUS, 0x20);
 }
+

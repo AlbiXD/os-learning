@@ -8,21 +8,22 @@ void bootmain(void)
 {
     clear_screen();
     // Requests the HDD to read the first 4096 bytes of the kernel ELF file
+    waitdisk();
     outb(ATA_SECTOR_COUNT, 8);
-    outb(ATA_LBA_LOW, 2);
+    outb(ATA_LBA_LOW, 3);
     outb(ATA_LBA_MID, 0);
     outb(ATA_LBA_HIGH, 0);
-    outb(ATA_PRIMARY_DRIVE_HEAD, 0xE0 | ((2 >> 24) & 0x0F));
+    outb(ATA_PRIMARY_DRIVE_HEAD, 0xE0 | ((3 >> 24) & 0x0F));
     outb(ATA_COMMAND_STATUS, 0x20);
 
     // Temporary location to hold the kernel headers
-    uint16_t *kernel_header = (uint16_t *)0x8000;
+    uint16_t *kernel_header = (uint16_t *)KERNEL_TEMP;
 
     // Read from HDD Data Register into memory address 0x5E8
     uint16_t *p = kernel_header;
 
-    for (int i = 0; i < 4; i++){
-        if (ata_wait_drq() < 0) while (1);
+    for (int i = 0; i < 8; i++){
+        ata_wait_drq();
         for(int s = 0; s < 256; s++)
             *p++ = inw(ATA_DATA);
     }
@@ -35,12 +36,7 @@ void bootmain(void)
 
     struct proghdr *program_header = (struct proghdr *)((uint8_t *)kernel_header + elf->phoff);
 
-    // We must load each entry of the program header
-    // elf->phnum # number of entries in the program header
-    // elf->phentsize size of one program table entry
-    // elf->phoff points to the offset where program header starts
 
-    // for each program table entry we will load segments into memory? then call entry()
     uint64_t total_bytes_to_read = 0;
     struct proghdr *ptr = program_header;
 
@@ -64,79 +60,61 @@ void bootmain(void)
     if (total_sectors > header_sectors)
         remaining = total_sectors - header_sectors;
 
-    uint32_t lba = 2 + header_sectors; // start right AFTER the 4096 bytes you already read
+    uint32_t lba = 3 + header_sectors; // start right AFTER the 4096 bytes you already read
 
-    uint16_t *elf_ptr = (uint16_t *)KERNEL_TEMP;
+    uint16_t *pointer = (uint16_t *)0x10000;
 
-    // We aren't doing that at the moment
-    //  Read in 256 chunks and load into memory logic...?
 
-    // sectors = 553 - 256
+    
     while (remaining)
     {
+        uint32_t chunk = remaining > 255 ? 256 : remaining;
+        
+        waitdisk();
+        ata_issue_read28(chunk, lba);
 
-        if (remaining <= 256)
+        // read sector into disk
+        for (uint32_t s = 0; s < chunk; s++)
         {
-            // polling for drive to be ready
-            if (ata_wait_drq() < 0)
-                while (1)
-                    ;
-            // hdd is ready lets issue a read
-            ata_issue_read28(remaining, lba);
-
-            // polling for drive to say you can read
-            if (ata_wait_drq() < 0)
-                while (1)
-                    ;
-            // data is ready to be put in memory
-
-            for (int s = 0; s < remaining; s++)
+            ata_wait_drq();
+            for (int i = 0; i < 256; i++ )
             {
-                if (ata_wait_drq() < 0)
-                    while (1)
-                        ;
-                for (int i = 0; i < 256; i++)
-                {
-                    *elf_ptr++ = inw(ATA_DATA);
-                }
+                *pointer++ = inw(ATA_DATA);
+
             }
-
-            lba += remaining;
-            remaining = 0;
         }
-        else
-        {
-            // Issue read for 256 sectors
-            ata_issue_read28(256, lba);
 
-            // Read EXACTLY 256 sectors (not 'remaining')
-            for (int s = 0; s < 256; s++)
-            {
-                if (ata_wait_drq() < 0)
-                    while (1)
-                        ;
-
-                for (int i = 0; i < 256; i++)
-                {
-                    *elf_ptr++ = inw(ATA_DATA);
-                }
-            }
-
-            lba += 256;
-            remaining -= 256;
-        }
+        lba += chunk;
+        remaining -= chunk;
     }
 
-    uint8_t *ep = (uint8_t *)KERNEL_TEMP;
-    // We know each program header entry is 20h bytes
+    
+    uint32_t reoffset = 0x1000;
     ptr = program_header;
+    uint8_t* segment_ptr = 0;
 
-    // Now
+    uint8_t *tempKernel = (uint8_t *) 0x10000;
+    for(uint16_t pentry = 0; pentry < elf->phnum; pentry++){
+        if(ptr->type == ELF_PROG_LOAD){
+            uint32_t offset = (ptr->off) - reoffset;
+            uint8_t *address =(uint8_t*) ptr->vaddr;
+            uint32_t size = ptr->filesz;
 
-    // READ THE SECTORS
+            for(uint32_t s =  0 ; s < size; s++){
+                // *address++ = *((((uint8_t * ) 0x10000) + offset)++); 
 
-    // void (*entry)(void) = (void (*)(void))elf->entry;
-    // entry();
+                *address++ = *(tempKernel+offset+s);
+            }
+        }
+
+        ptr++;
+    }
+
+    void (*entry_pointer)(void);
+
+    entry_pointer = ( void (*)(void)) elf->entry;
+
+    entry_pointer();
 
     while (1)
         ;
