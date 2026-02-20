@@ -1,7 +1,6 @@
 #include <stdint.h>
 
 #define ELF_MAGIC 0x464C457FU
-#define KERNEL_TEMP 0x8000
 struct __attribute__((packed)) elfhdr {
     uint32_t magic;        
     uint8_t  ident[12];    
