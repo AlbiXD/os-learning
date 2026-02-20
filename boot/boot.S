@@ -10,10 +10,41 @@ _start:
     movw	%ax, %ss
     movw 	$0x7c00, %sp
 
+checking_a20:   
+	movw	$0xFFFF, %ax
+	movw    %ax, %es
+	movw	$0x510, %bx
+ 	movb	$0x24, %es:(%bx)
+	movw	%es:(%bx), %ax
+	
+	movw	$0x500, %bx
+	movw	(%bx), %di
+	cmp	%ax, %di
+	jne	continue
 
-    movb	$0x0e, %ah
-    movb	$'!', %al
-    int	$0x10
+seta20_1:
+	inb	$0x64, %al # Check Keyboard Controller if busy
+	testb	$0x2, %al # Must check 2nd bit of status register before writing to PORTS 0x64 and 0x60
+	jnz	seta20_1
+	
+	movb	$0xd1, %al # Command to write byte next byte to Controller Output Port
+	outb	%al, $0x64 # Sending command 
+seta20_2:
+	inb $0x64, %al
+	testb $0x2, %al
+	jnz seta20_2
+	
+	movb $0xdf, %al
+	outb %al, $0x60
+
+
+
+continue:
+	xor	%ax, %ax
+	mov	%ax, %es
+	movb	$0x0e, %ah
+	movb	$'!', %al
+	int	$0x10
 
 
 #boot next 512 bytes
@@ -26,7 +57,7 @@ _start:
     movb $0x00, %ch
     movb $0x02, %cl
     movb $0x00, %dh
-    movw $0x1000, %bx
+    movw $0x8000, %bx
     int $0x13
     
     jnc read_ok
@@ -60,7 +91,7 @@ start32:
 
 
     movl $0x90000, %esp
-    mov $0x1000, %eax
+    mov $0x8000, %eax
     call *%eax
     jmp .
 .align 8

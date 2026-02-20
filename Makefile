@@ -24,7 +24,7 @@ $(BUILDDIR)/kernel.out: $(BUILDDIR)/kernel.o
 	$(LD) -T linker-scripts/kernel.ld $< -o $@
 	
 main.bin: $(BUILDDIR)/bootmain.o
-	$(LD) $(LFLAGS) -Ttext 0x1000 -e bootmain -o $(BUILDDIR)/$@ $^
+	$(LD) $(LFLAGS) -Ttext 0x8000 -e bootmain -o $(BUILDDIR)/$@ $^
 
 $(BUILDDIR)/bootmain.o: $(BOOTDIR)/bootmain.c | $(BUILDDIR)
 	$(CC) $(CFLAGS) -c $< -o $@

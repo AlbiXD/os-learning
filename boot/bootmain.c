@@ -1,7 +1,9 @@
 #include "../header/disk.h"
 #include "../header/elf.h"
-#include "../header/tools.h"
-static volatile unsigned short *const vga = (volatile unsigned short *)0xB8000;
+#include "../header/boot.h"
+#include "../header/vga.h"
+
+static volatile unsigned short *const vga = (volatile unsigned short *)VGA_MEMORY;
 
 void clear_screen();
 void bootmain(void)
@@ -17,7 +19,7 @@ void bootmain(void)
     outb(ATA_COMMAND_STATUS, 0x20);
 
     // Temporary location to hold the kernel headers
-    uint16_t *kernel_header = (uint16_t *)KERNEL_TEMP;
+    uint16_t *kernel_header = (uint16_t *)KERNEL_HEADER_TEMP;
 
     // Read from HDD Data Register into memory address 0x5E8
     uint16_t *p = kernel_header;
@@ -62,7 +64,7 @@ void bootmain(void)
 
     uint32_t lba = 3 + header_sectors; // start right AFTER the 4096 bytes you already read
 
-    uint16_t *pointer = (uint16_t *)0x10000;
+    uint16_t *pointer = (uint16_t *)KERNEL_SEGMENT_TEMP;
 
 
     
@@ -93,7 +95,7 @@ void bootmain(void)
     ptr = program_header;
     uint8_t* segment_ptr = 0;
 
-    uint8_t *tempKernel = (uint8_t *) 0x10000;
+    uint8_t *tempKernel = (uint8_t *) KERNEL_SEGMENT_TEMP;
     for(uint16_t pentry = 0; pentry < elf->phnum; pentry++){
         if(ptr->type == ELF_PROG_LOAD){
             uint32_t offset = (ptr->off) - reoffset;
@@ -101,7 +103,6 @@ void bootmain(void)
             uint32_t size = ptr->filesz;
 
             for(uint32_t s =  0 ; s < size; s++){
-                // *address++ = *((((uint8_t * ) 0x10000) + offset)++); 
 
                 *address++ = *(tempKernel+offset+s);
             }
@@ -110,14 +111,10 @@ void bootmain(void)
         ptr++;
     }
 
-    void (*entry_pointer)(void);
-
-    entry_pointer = ( void (*)(void)) elf->entry;
-
+    void (*entry_pointer)(void) = ( void (*)(void)) elf->entry;
     entry_pointer();
 
-    while (1)
-        ;
+    while (1);
 }
 
 void clear_screen()
