@@ -43,6 +43,19 @@ This is the physical memory layout I’m using during boot (stage1 → stage2 �
 - `0x20000` `KERNEL_SEGMENT_TEMP` (temporary segment load buffer)
 - `0x100000` `KERNEL_PT_LOADS` (kernel loaded at 1MB+)
 
+## OS Roadmap (no particular order, just things I want to build)
+In no apparent order
+- TTY Printing ✔
+- GDT ✔
+- IDT 
+- Kernel Allocator
+- Paging
+- PIC (or APIC not sure which yet)
+- Keyboard Queue
+- File System
+- Scheduler
+- Shell
+
 ## Notes
 - https://docs.google.com/document/d/e/2PACX-1vQJCw4J2pqfRT8Nx3MKygpaCR207wlwMCYMSm3vlpFCwhH9OWkJGUleK1QsQUatDJ8rFJBRUh6MCOyc/pub
 
