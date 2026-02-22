@@ -44,7 +44,6 @@ This is the physical memory layout I’m using during boot (stage1 → stage2 �
 - `0x100000` `KERNEL_PT_LOADS` (kernel loaded at 1MB+)
 
 ## OS Roadmap (no particular order, just things I want to build)
-In no apparent order
 - TTY Printing ✔
 - GDT ✔
 - IDT 
