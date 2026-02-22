@@ -1,8 +1,9 @@
 # os-learning
-<img width="748" height="492" alt="Screenshot from 2026-02-18 23-49-01" src="https://github.com/user-attachments/assets/5293bfc1-bdd5-4c71-9d05-dd78adc9d65f" />
-
-  <sub> Screenshot of just a few characters from the kernel </sub>
-
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5293bfc1-bdd5-4c71-9d05-dd78adc9d65f" width="600" />
+  <br>
+  <sub>Screenshot of just a few characters from the kernel</sub>
+</p>
 
 <p> Exploring low level system programming on 32 bit x86 to better understand how computers handle booting, memory, and hardware interaction. </p>
 
@@ -22,10 +23,8 @@ sudo apt install qemu-system
 
 <p> Then finally run and compile the simulator with </p>
 
-
-
 ```
-make output
+make output   # builds disk image + boots it in QEMU
 ``` 
 ## Memory Map (Boot)
 
