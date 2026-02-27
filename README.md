@@ -46,7 +46,7 @@ This is the physical memory layout I’m using during boot (stage1 → stage2 �
 ## OS Roadmap (no particular order, just things I want to build)
 - TTY Printing ✔
 - GDT ✔
-- IDT 
+- IDT (WIP)
 - Kernel Allocator
 - Paging
 - PIC (or APIC not sure which yet)
